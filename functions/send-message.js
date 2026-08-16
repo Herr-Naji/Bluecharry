@@ -6,8 +6,9 @@ export async function onRequestPost(context) {
       return new Response(JSON.stringify({ message: 'فیلدهای ضروری پر نشده‌اند.' }), { status: 400 });
     }
 
-    const TELEGRAM_BOT_TOKEN = context.env.TELEGRAM_BOT_TOKEN;
-    const TELEGRAM_CHAT_ID = context.env.TELEGRAM_CHAT_ID;
+    // قرار دادن مستقیم مقادیر توکن و چت‌آیدی
+    const TELEGRAM_BOT_TOKEN = "8825977608:AAHdP1i0AGF5a9QpNfT6jZWusFQTOjaSCXg";
+    const TELEGRAM_CHAT_ID = "8015863818";
 
     const text = `💌 *پیام جدید از وب‌سایت*\n\n` +
                  `👤 *فرستنده:* ${name}\n` +
