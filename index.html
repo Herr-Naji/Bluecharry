@@ -420,7 +420,8 @@ document.getElementById("contactForm").addEventListener("submit", async function
 
   const deviceOS = getOS();
 
-  fetch("/send-message", {
+  // ارسال درخواست مستقیم به کلودفلار ورکر جدید شما
+  fetch("https://aged-water-dc34.mynajimail.workers.dev", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, email, subject, message, userIP, deviceOS })
