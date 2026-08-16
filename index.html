@@ -358,42 +358,49 @@ document.querySelectorAll('a[href^="#"]').forEach(link=>{
   });
 });
 
-// ------------ تنظیمات ارسال به تلگرام ------------
-document.getElementById("contactForm").addEventListener("submit", function(e) {
+// تابع تشخیص سیستم‌عامل
+function getOS() {
+  const userAgent = window.navigator.userAgent;
+  if (userAgent.indexOf("Android") !== -1) return "Android 🤖";
+  if (userAgent.indexOf("iPhone") !== -1 || userAgent.indexOf("iPad") !== -1) return "iOS (iPhone/iPad) 🍎";
+  if (userAgent.indexOf("Windows") !== -1) return "Windows 💻";
+  if (userAgent.indexOf("Mac") !== -1) return "MacOS 🍏";
+  if (userAgent.indexOf("Linux") !== -1) return "Linux 🐧";
+  return "نامشخص 📱";
+}
+
+// ------------ تنظیمات ارسال پیام ------------
+document.getElementById("contactForm").addEventListener("submit", async function(e) {
   e.preventDefault();
 
-  // 1. اطلاعات توکن و چت‌آیدی خودت را اینجا وارد کن:
-  const TELEGRAM_BOT_TOKEN = "8825977608:AAHdP1i0AGF5a9QpNfT6jZWusFQTOjaSCXg";
-  const TELEGRAM_CHAT_ID = "8015863818";
-
-  // 2. گرفتن مقادیر ورودی
   const name = document.getElementById("senderName").value.trim();
   const email = document.getElementById("senderEmail").value.trim();
   const subject = document.getElementById("senderSubject").value.trim() || "بدون موضوع";
   const message = document.getElementById("senderMessage").value.trim();
   const submitBtn = document.getElementById("submitBtn");
 
-  // تغییر متن دکمه در حال ارسال
   submitBtn.disabled = true;
   submitBtn.textContent = "در حال ارسال... ⏳";
 
-  // ساخت متن پیام تلگرام
-  const text = `💌 *پیام جدید از وب‌سایت*\n\n` +
-               `👤 *فرستنده:* ${name}\n` +
-               `📧 *ایمیل:* ${email}\n` +
-               `📌 *موضوع:* ${subject}\n\n` +
-               `📝 *متن پیام:\n* ${message}`;
+  // دریافت IP فرستنده
+  let userIP = "نامشخص";
+  try {
+    const ipRes = await fetch("https://ipapi.co/json/");
+    if (ipRes.ok) {
+      const ipData = await ipRes.json();
+      userIP = ipData.ip || "نامشخص";
+    }
+  } catch (err) {
+    console.log("خطا در دریافت IP:", err);
+  }
 
-  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+  const deviceOS = getOS();
 
-  fetch(url, {
+  // ارسال داده به تابع سرورلس Cloudflare
+  fetch("/send-message", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: TELEGRAM_CHAT_ID,
-      text: text,
-      parse_mode: "Markdown"
-    })
+    body: JSON.stringify({ name, email, subject, message, userIP, deviceOS })
   })
   .then(response => {
     if (response.ok) {
@@ -459,13 +466,6 @@ window.addEventListener("mousemove",e=>{
   const y=(e.clientY/window.innerHeight-.5)*10;
   const blob=document.querySelector(".blob");
   if(blob) blob.style.marginLeft=x+"px";
-});
-
-document.addEventListener("keydown",e=>{
-  if(e.key.toLowerCase()==="d"){
-    document.body.classList.toggle("dark");
-    themeBtn.textContent=document.body.classList.contains("dark")?"🌙":"☀️";
-  }
 });
 </script>
 </body>
